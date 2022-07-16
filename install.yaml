@@ -1,6 +1,6 @@
 ---
-- name: My first play
-  hosts: localhost
+- name: Install grafana with influxdb integration
+  hosts: osiris
   vars: 
     oracle_db_port_value : 1521
    

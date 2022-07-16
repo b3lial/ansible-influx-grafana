@@ -1,0 +1,10 @@
+---
+- name: My first play
+  hosts: localhost
+  vars: 
+    oracle_db_port_value : 1521
+   
+  tasks:    
+    - name: Print message
+      ansible.builtin.debug:
+        msg: Hello world

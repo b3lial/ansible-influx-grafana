@@ -8,3 +8,10 @@
     - name: Print message
       ansible.builtin.debug:
         msg: Hello world
+
+    - name: start docker
+      become: yes
+      service:
+        name=docker
+        state=started
+        enabled=yes

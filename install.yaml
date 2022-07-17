@@ -8,10 +8,18 @@
     - name: Print message
       ansible.builtin.debug:
         msg: Hello world
-
     - name: start docker
       become: yes
       service:
         name=docker
         state=started
         enabled=yes
+    - name: Create python virtual environment and install dependencies 
+      pip:
+        name: requests
+        virtualenv: /tmp/grafana-influx-integrator
+        virtualenv_command: /usr/bin/python3 -m venv
+    - name: execute grafana influx integration script
+      script: hello_world.py
+      args:
+        executable: /tmp/grafana-influx-integrator/bin/python3

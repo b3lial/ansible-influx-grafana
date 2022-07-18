@@ -4,11 +4,7 @@
   vars: 
     oracle_db_port_value : 1521
    
-  tasks:    
-    - name: Print message
-      ansible.builtin.debug:
-        msg: Hello world
-
+  tasks:
     - name: Create python virtual environment and install dependencies 
       pip:
         name: requests
@@ -46,3 +42,9 @@
           DOCKER_INFLUXDB_INIT_BUCKET: "cloudsensor"
         published_ports:
           - 8086:8086
+    - name: Fetch influxdb user token
+      shell: docker exec influxdb2 influx auth list --json | jq -r '.[0].token'
+      register: influxdb_token
+    - name: Print influx token to console
+      ansible.builtin.debug:
+        msg: Influxdb user token {{ influxdb_token.stdout }}

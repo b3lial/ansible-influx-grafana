@@ -8,12 +8,7 @@
     - name: Print message
       ansible.builtin.debug:
         msg: Hello world
-    - name: start docker
-      become: yes
-      service:
-        name=docker
-        state=started
-        enabled=yes
+
     - name: Create python virtual environment and install dependencies 
       pip:
         name: requests
@@ -23,3 +18,31 @@
       script: hello_world.py
       args:
         executable: /tmp/grafana-influx-integrator/bin/python3
+
+    - name: start docker
+      become: yes
+      service:
+        name=docker
+        state=started
+        enabled=yes
+    - name: Create a influx data volume
+      community.docker.docker_volume:
+        name: influx-data
+    - name: Create a influx config volume
+      community.docker.docker_volume:
+        name: influx-config
+    - name: Create a influx container container
+      community.docker.docker_container:
+        name: influxdb2
+        image: influxdb:latest
+        volumes:
+          - influx-data:/var/lib/influxdb2
+          - influx-config:/etc/influxdb2
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: "setup"
+          DOCKER_INFLUXDB_INIT_USERNAME: "christian"
+          DOCKER_INFLUXDB_INIT_PASSWORD: "geheimespasswort"
+          DOCKER_INFLUXDB_INIT_ORG: "phobosys"
+          DOCKER_INFLUXDB_INIT_BUCKET: "cloudsensor"
+        published_ports:
+          - 8086:8086

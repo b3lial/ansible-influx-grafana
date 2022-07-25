@@ -2,25 +2,21 @@
 - name: Install grafana with influxdb integration
   hosts: osiris
   vars: 
-    oracle_db_port_value : 1521
+    influx_user : christian
+    influx_pass : geheimespasswort
+    influx_org : phobosys
+    influx_bucket : cloudsensor
+    grafana_pass : geheimespasswort2
    
   tasks:
-    - name: Create python virtual environment and install dependencies 
-      pip:
-        name: requests
-        virtualenv: /tmp/grafana-influx-integrator
-        virtualenv_command: /usr/bin/python3 -m venv
-    - name: execute grafana influx integration script
-      script: hello_world.py
-      args:
-        executable: /tmp/grafana-influx-integrator/bin/python3
-
     - name: start docker
       become: yes
       service:
         name=docker
         state=started
         enabled=yes
+
+    # install influx
     - name: Create a influx data volume
       community.docker.docker_volume:
         name: influx-data
@@ -36,10 +32,10 @@
           - influx-config:/etc/influxdb2
         env:
           DOCKER_INFLUXDB_INIT_MODE: "setup"
-          DOCKER_INFLUXDB_INIT_USERNAME: "christian"
-          DOCKER_INFLUXDB_INIT_PASSWORD: "geheimespasswort"
-          DOCKER_INFLUXDB_INIT_ORG: "phobosys"
-          DOCKER_INFLUXDB_INIT_BUCKET: "cloudsensor"
+          DOCKER_INFLUXDB_INIT_USERNAME: "{{ influx_user }}"
+          DOCKER_INFLUXDB_INIT_PASSWORD: "{{ influx_pass }}"
+          DOCKER_INFLUXDB_INIT_ORG: "{{ influx_org }}"
+          DOCKER_INFLUXDB_INIT_BUCKET: "{{ influx_bucket }}"
         published_ports:
           - 8086:8086
     - name: Wait for influxdb to be available
@@ -54,3 +50,29 @@
     - name: Print influx token to console
       ansible.builtin.debug:
         msg: Influxdb user token {{ influxdb_token.stdout }}
+
+    # install grafana
+    - name: Create a grafana data volume
+      community.docker.docker_volume:
+        name: grafana-storage
+    - name: Create a grafana container container
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana
+        volumes:
+          - grafana-storage:/var/lib/grafana
+        published_ports:
+          - 3000:3000
+    - name: Set grafana admin password
+      shell: docker exec -it grafana grafana-cli --homepath "/usr/share/grafana" admin reset-admin-password {{ grafana_pass }}
+
+    # add influx as data source in grafana
+    - name: Create python virtual environment and install dependencies 
+      pip:
+        name: requests
+        virtualenv: /tmp/grafana-influx-integrator
+        virtualenv_command: /usr/bin/python3 -m venv
+    - name: execute grafana influx integration script
+      script: add_influx_to_grafana.py
+      args:
+        executable: /tmp/grafana-influx-integrator/bin/python3

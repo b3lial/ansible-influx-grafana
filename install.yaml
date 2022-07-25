@@ -42,6 +42,12 @@
           DOCKER_INFLUXDB_INIT_BUCKET: "cloudsensor"
         published_ports:
           - 8086:8086
+    - name: Wait for influxdb to be available
+      shell: docker exec influxdb2 influx auth list --json
+      register: result
+      until: result.stderr.find("Error") == -1
+      retries: 10
+      delay: 3
     - name: Fetch influxdb user token
       shell: docker exec influxdb2 influx auth list --json | jq -r '.[0].token'
       register: influxdb_token

@@ -6,6 +6,7 @@
     influx_pass : geheimespasswort
     influx_org : phobosys
     influx_bucket : cloudsensor
+    grafana_user : admin
     grafana_pass : geheimespasswort2
    
   tasks:
@@ -73,6 +74,6 @@
         virtualenv: /tmp/grafana-influx-integrator
         virtualenv_command: /usr/bin/python3 -m venv
     - name: execute grafana influx integration script
-      script: add_influx_to_grafana.py
+      script: add_influx_to_grafana.py {{grafana_user}} {{grafana_pass}} {{ansible_hostname}} {{influxdb_token.stdout}} {{ansible_hostname}} {{influx_bucket}} {{influx_org}}
       args:
         executable: /tmp/grafana-influx-integrator/bin/python3

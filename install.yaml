@@ -3,6 +3,7 @@
   hosts: influx-grafana
    
   tasks:
+    # configure docker
     - name: start docker
       become: yes
       service:

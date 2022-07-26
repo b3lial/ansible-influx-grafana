@@ -1,0 +1,12 @@
+influx-grafana:
+  hosts:
+    osiris:
+      ansible_host: osiris
+      ansible_user: belial
+  vars:
+    influx_user : christian
+    influx_pass : geheimespasswort
+    influx_org : phobosys
+    influx_bucket : cloudsensor
+    grafana_user : admin
+    grafana_pass : geheimespasswort2

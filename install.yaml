@@ -1,13 +1,6 @@
 ---
 - name: Install grafana with influxdb integration
-  hosts: osiris
-  vars: 
-    influx_user : christian
-    influx_pass : geheimespasswort
-    influx_org : phobosys
-    influx_bucket : cloudsensor
-    grafana_user : admin
-    grafana_pass : geheimespasswort2
+  hosts: influx-grafana
    
   tasks:
     - name: start docker

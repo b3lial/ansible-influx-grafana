@@ -16,6 +16,13 @@
         name=docker
         state=started
         enabled=yes
+    - name: Add remote user to docker group
+      become: yes
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: 
+          - "docker"
+        append: yes
 
     # install influx
     - name: Create a influx data volume
